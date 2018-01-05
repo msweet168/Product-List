@@ -19,20 +19,24 @@ struct Product: Codable {
     let body_html: String
     /// Keywords related to the product
     let tags: String
-    /// Array of the products images
+    /// Array of the product's images
     let images: [Image]
     
     struct Image: Codable {
         /// URL to image
         let src: URL
     }
-    
+    /// ID of the product
     let id: Int
+    /// Vendor of product
     let vendor: String
+    /// Type of product
     let product_type: String
+    /// Array of the product's variants
     let variants: [Variant]
     
     struct Variant: Codable {
+        /// Title of product varient
         let title: String
     }
     

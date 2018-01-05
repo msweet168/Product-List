@@ -24,6 +24,7 @@ class ListViewCell: UITableViewCell {
         // Initialization code
         
         itemImage.layer.cornerRadius = 15
+        itemImage.layer.masksToBounds = true
         itemImage.layer.borderColor = UIColor.themeColor.cgColor
         itemImage.layer.borderWidth = 2
     }

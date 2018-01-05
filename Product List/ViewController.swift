@@ -47,7 +47,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         // Search controller
         
-        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).attributedPlaceholder = NSAttributedString(string: "Search products", attributes: [NSAttributedStringKey.foregroundColor: UIColor.gray])
+        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).attributedPlaceholder = NSAttributedString(string: "Search products", attributes: nil)
         searchController.searchBar.tintColor = UIColor.white
         
         UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = [NSAttributedStringKey.foregroundColor.rawValue: UIColor.white]
@@ -65,6 +65,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     /// Called by search button to bring focus to search field.
     @IBAction func search() {
         searchController.isActive = true
+        searchController.searchBar.becomeFirstResponder()
     }
     
     /// Returns true if search bar has text in it.
@@ -104,6 +105,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 }
             }
             catch {
+                // Present an alert if the JSON data cannot be decoded.
                 let alert = UIAlertController(title: "Error", message: "Could not read products.", preferredStyle: UIAlertControllerStyle.alert)
                 alert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil))
                 self.present(alert, animated: true, completion: nil)
@@ -122,7 +124,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
+    
         if isSearching() {
             return filteredProducts.count
         }
@@ -133,6 +135,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ListViewCell
         
+        // Creates an array of products to display bases on wheather a search is being conducted or not.
         var displayedProducts: [Product] {
             if isSearching() {
                 return filteredProducts
@@ -141,8 +144,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
         
+        // Current product for specific cell
         let product = displayedProducts[indexPath.row]
         
+        // If the image has an image URL, imageLoader is used to download the image and display it in the cell's imageview.
         if let imageUrl = product.images.first?.src {
             imageLoader.loadImage(url: imageUrl) { image, error in
                 if let error = error {
@@ -157,14 +162,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         
         
+        // Set other labels in cell.
+        
         cell.title.text = product.title
         cell.desc.text = product.body_html
         cell.id.text = "ID: \(product.id)"
         cell.vendor.text = "Vendor: \(product.vendor)"
         cell.type.text = "Product Type: \(product.product_type)"
         cell.numVarients.text = "Variants: \(product.variants.count)"
-        
-        
         cell.varients.text = product.variants.map { $0.title }.joined(separator: ", ")
 
         cell.tintColor = UIColor.themeColor
@@ -181,6 +186,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         cellTapped(rowNum: indexPath.row)
     }
     
+    /// Changes the selected row index and updates the table view.
     func cellTapped(rowNum: Int) {
         if rowNum == selectedRow {
             selectedRow = -1
@@ -194,7 +200,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == selectedRow {
-            return 300
+            return 315
         }
         else {
             return 120
@@ -217,6 +223,7 @@ extension UIColor {
 }
 
 extension ViewController: UISearchResultsUpdating {
+    /// Updates the search results each time text is entered. 
     func updateSearchResults(for searchController: UISearchController) {
         filteredProducts = allProducts.filter { $0.matchesSearchText((searchController.searchBar.text?.lowercased())!) }
         tableView.reloadData()
